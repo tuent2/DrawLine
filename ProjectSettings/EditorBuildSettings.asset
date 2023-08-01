@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/DrawScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/UITestScene.unity
+    path: Assets/Scenes/ZoomAndPanSence.unity
     guid: 451d9632577781142a0e4ed1d1f72226
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: e837f781e8afb81499462a344c48f450, type: 2}
