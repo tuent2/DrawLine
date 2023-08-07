@@ -77,7 +77,7 @@ public class CointCollection : MonoBehaviour
     {
         if(coinReactTween == null)
         {
-            coinReactTween = endPosition.DOPunchScale(new Vector3(1.5f, 1.5f, 0f), 0.3f).SetEase(Ease.InOutElastic);
+            coinReactTween = endPosition.DOPunchScale(new Vector3(.5f, .5f, 0f), 0.3f).SetEase(Ease.InOutElastic);
             await coinReactTween.ToUniTask();
             coinReactTween = null;
         }
