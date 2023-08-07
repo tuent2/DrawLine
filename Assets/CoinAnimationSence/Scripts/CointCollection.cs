@@ -5,13 +5,14 @@ using NaughtyAttributes;
 using DG.Tweening;
 using Cysharp.Threading.Tasks;
 using System;
-
+using TMPro;
 public class CointCollection : MonoBehaviour
 {
     [SerializeField] private GameObject coinFrefab;
     [SerializeField] private Transform coinParent;
     [SerializeField] private Transform spawnPosition;
     [SerializeField] private Transform endPosition;
+    [SerializeField] private TextMeshProUGUI cointText;
     [SerializeField] private float duration = 2f;
     [SerializeField] private int coinAmont;
     [SerializeField] private float minX;
@@ -20,6 +21,7 @@ public class CointCollection : MonoBehaviour
     [SerializeField] private float maxY;
     List<GameObject> coins = new List<GameObject>();
     private Tween coinReactTween;
+    private int coint;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,25 +34,36 @@ public class CointCollection : MonoBehaviour
         
     }
 
+    private void SetCoin(int value)
+    {
+        coint = value;
+        cointText.text = coint.ToString("0000000");
+    }
+
     [Button]
     public async void ConitBehavior()
-    {   
+    {
         //Reset
+        coint = 0;
         for (int i = 0; i< coins.Count; i++)
         {
             Destroy(coins[i]);
         }
         coins.Clear();
         // Spawn Coint to speciphic location with random value
+        List<UniTask> spawnCoinTaskList = new List<UniTask>();
         for (int i = 0; i < coinAmont; i++)
         {
             GameObject coinInstance = Instantiate(coinFrefab, coinParent);
             float xPosition = spawnPosition.position.x + UnityEngine.Random.Range(minX, maxX);
             float yPosition = spawnPosition.position.y + UnityEngine.Random.Range(minY, maxY);
-            coinInstance.transform.position = new Vector3(xPosition, yPosition);
+             coinInstance.transform.position = new Vector3(xPosition, yPosition);
+            spawnCoinTaskList.Add( coinInstance.transform.DOPunchRotation(new Vector3(0, 30, 0), UnityEngine.Random.Range(0, 1f)).SetEase(Ease.InOutElastic ).ToUniTask());
             coins.Add(coinInstance);
+            await UniTask.Delay(TimeSpan.FromSeconds(0.01f));
         }
-        await UniTask.Delay(TimeSpan.FromSeconds(1f));
+        await UniTask.WhenAll(spawnCoinTaskList);
+        //await UniTask.Delay(TimeSpan.FromSeconds(1f));
         //Move all the coint to the Coint Layout
         await MoveCoinsTask();
         // animate reaction when collecting coin
@@ -59,17 +72,21 @@ public class CointCollection : MonoBehaviour
     private async UniTask MoveCoinsTask()
     {
         List<UniTask> moveCoinTask = new List<UniTask>();
-        for (int i = 0; i < coins.Count; i++)
+        for (int i = coins.Count -1 ; i >= 0; i--)
         {
-            moveCoinTask.Add(MoveCoinTask(i));
-            await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
+            moveCoinTask.Add(MoveCoinTask(coins[i]));
+            await UniTask.Delay(TimeSpan.FromSeconds(0.05f));   
         }
     }
 
-    private async UniTask MoveCoinTask(int i)
+    private async UniTask MoveCoinTask(GameObject coinInstance)
     {
-        await coins[i].transform.DOMove(endPosition.position, duration).ToUniTask();
+        await coinInstance.transform.DOMove(endPosition.position, duration).SetEase(Ease.InBack).ToUniTask();
+        GameObject temp = coinInstance;
+        coins.Remove(coinInstance);
+        Destroy(temp);
         ReactToCollectionCoin();
+        SetCoin(coint+1);
     }
 
     [Button]
