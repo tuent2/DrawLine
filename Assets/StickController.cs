@@ -7,7 +7,7 @@ public class StickController : MonoBehaviour
     private bool isDragging = false;
     private Vector2 initialClickPosition;
     private HingeJoint2D hingeJoint;
-
+    private Vector3 currentPosition;
     private void Start()
     {
         hingeJoint = gameObject.GetComponent<HingeJoint2D>();
@@ -20,14 +20,14 @@ public class StickController : MonoBehaviour
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0;
-
+            currentPosition = gameObject.transform.position;
             Collider2D playerCollider = GetComponent<Collider2D>();
             if (playerCollider.OverlapPoint(mousePosition))
             {
-                if (!isDragging) // Chỉ thực hiện khi đang không kéo
+                if (!isDragging)
                 {
                     isDragging = true;
-                    initialClickPosition = mousePosition; // Update initialClickPosition here
+                    initialClickPosition = mousePosition;
                     hingeJoint.anchor = transform.InverseTransformPoint(mousePosition);
                     
                     hingeJoint.enabled = true;
@@ -35,6 +35,8 @@ public class StickController : MonoBehaviour
                     hingeJoint.connectedAnchor = transform.InverseTransformPoint(mousePosition);
 
 
+                    //gameObject.transform.position = currentPosition;
+                    Debug.Log(currentPosition);
                 }
             }
         }
@@ -51,8 +53,9 @@ public class StickController : MonoBehaviour
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0;
 
-            Vector2 anchorDelta = (Vector2)mousePosition - initialClickPosition;
-            hingeJoint.connectedAnchor = anchorDelta;
+           // Vector2 anchorDelta = (Vector2)mousePosition - initialClickPosition;
+            hingeJoint.connectedAnchor = mousePosition;
+            //gameObject.transform.position = currentPosition;
         }
     }
 }
