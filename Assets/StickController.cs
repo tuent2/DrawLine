@@ -5,58 +5,54 @@ using UnityEngine;
 public class StickController : MonoBehaviour
 {
     private bool isDragging = false;
-    HingeJoint2D hingeJoint;
+    private Vector2 initialClickPosition;
+    private HingeJoint2D hingeJoint;
+
     private void Start()
     {
-         hingeJoint = gameObject.GetComponent<HingeJoint2D>();
+        hingeJoint = gameObject.GetComponent<HingeJoint2D>();
         hingeJoint.enabled = false;
     }
 
     private void Update()
     {
-       
         if (Input.GetMouseButtonDown(0))
         {
-            // Chuyển đổi tọa độ chuột/chạm sang không gian game
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePosition.z = 0; // Đảm bảo z = 0 để tránh vấn đề về chiều cao
+            mousePosition.z = 0;
 
-            // Kiểm tra va chạm với GameObject "player"
             Collider2D playerCollider = GetComponent<Collider2D>();
             if (playerCollider.OverlapPoint(mousePosition))
             {
-                isDragging = true;
-                // Thiết lập Connected Anchor của HingeJoint2D thành vị trí chạm
-                hingeJoint.anchor = mousePosition;
-                hingeJoint.connectedAnchor = mousePosition;
-               
+                if (!isDragging) // Chỉ thực hiện khi đang không kéo
+                {
+                    isDragging = true;
+                    initialClickPosition = mousePosition; // Update initialClickPosition here
+                    hingeJoint.anchor = transform.InverseTransformPoint(mousePosition);
+                    
+                    hingeJoint.enabled = true;
+                    //hingeJoint.anchor = mousePosition;
+                    hingeJoint.connectedAnchor = transform.InverseTransformPoint(mousePosition);
+
+
+                }
             }
         }
 
-        // Kiểm tra sự kiện thả chuột/ra khỏi màn hình
         if (Input.GetMouseButtonUp(0))
         {
             isDragging = false;
-            //hingeJoint.anchor = gameObject.transform.position;
-            //hingeJoint.connectedAnchor = gameObject.transform.position;
             hingeJoint.enabled = false;
-            
         }
 
-       
         if (isDragging)
         {
+            
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-           
-                if (hingeJoint != null)
-                {
-                //Vector3 localTouchPosition = gameObject.transform.InverseTransformPoint(mousePosition);
-                //hingeJoint.connectedAnchor = localTouchPosition;
+            mousePosition.z = 0;
 
-                //hingeJoint.enabled = true;
-                hingeJoint.enabled = true;
-
-            }
+            Vector2 anchorDelta = (Vector2)mousePosition - initialClickPosition;
+            hingeJoint.connectedAnchor = anchorDelta;
         }
     }
 }
