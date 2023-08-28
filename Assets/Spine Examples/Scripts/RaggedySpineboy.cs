@@ -57,10 +57,17 @@ namespace Spine.Unity.Examples {
 			naturalCollider.enabled = false;
 		}
 
-		void OnMouseUp () {
-			if (naturalCollider.enabled)
-				Launch();
-		}
+        void OnMouseUp()
+        {
+            if (naturalCollider.enabled)
+                Launch();
+        }
+
+  //      void OnMouseDrag()
+		//{
+		//	if (naturalCollider.enabled)
+		//		Launch();
+		//}
 
 		void Launch () {
 			RemoveRigidbody();
